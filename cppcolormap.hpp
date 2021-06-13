@@ -217,27 +217,6 @@ namespace detail {
         }
     };
 
-    template <class E>
-    struct as_colors_impl<E, typename xt::has_fixed_rank_t<E>>
-    {
-        using value_type = typename E::value_type;
-        constexpr static size_t N = xt::get_rank<E>::value;
-
-        template <typename T, typename S>
-        static xt::xtensor<T, N + 1> run(
-            const E& data,
-            const xt::xtensor<T, 2> colors,
-            S vmin,
-            S vmax)
-        {
-            std::array<size_t, N + 1> shape;
-            std::copy(data.shape().cbegin(), data.shape().cend(), shape.begin());
-            shape[N] = colors.shape(1);
-            xt::xtensor<T, N + 1> ret = xt::empty<T>(shape);
-            detail::as_colors_func(data, colors, vmin, vmax, ret);
-            return ret;
-        }
-    };
 }
 
 /**
