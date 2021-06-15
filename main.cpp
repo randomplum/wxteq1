@@ -33,6 +33,7 @@ private:
     wxStaticText *m_staticText1;
     wxStaticBitmap *m_bitmap8;
     wxStaticText *m_staticText2;
+    wxPoint measure;
 };
 
 wxIMPLEMENT_APP(MyApp);
@@ -88,13 +89,13 @@ MyFrame::MyFrame()
     bSizer3 = new wxBoxSizer(wxHORIZONTAL);
 
     m_button1 = new wxButton(this, wxID_ANY, wxT("Calibrate"), wxDefaultPosition, wxDefaultSize, 0);
-    bSizer3->Add(m_button1, 0, wxALIGN_CENTER|wxRIGHT, 5);
+    bSizer3->Add(m_button1, 0, wxALIGN_CENTER | wxRIGHT, 5);
 
     wxString m_choice1Choices[] = {wxT("jet"), wxT("spring"), wxT("summer"), wxT("autumn"), wxT("winter"), wxT("cool"), wxT("hot"), wxT("bone"), wxT("copper"), wxT("afmhot"), wxT("terrain"), wxT("seismic"), wxT("magma"), wxT("inferno"), wxT("plasma"), wxT("viridis"), wxT("nipy_spectral"), wxT("hsv")};
     int m_choice1NChoices = sizeof(m_choice1Choices) / sizeof(wxString);
     m_choice1 = new wxChoice(this, wxID_ANY, wxDefaultPosition, wxDefaultSize, m_choice1NChoices, m_choice1Choices, 0);
     m_choice1->SetSelection(0);
-    bSizer3->Add(m_choice1, 0, wxALIGN_CENTER|wxLEFT, 5);
+    bSizer3->Add(m_choice1, 0, wxALIGN_CENTER | wxLEFT, 5);
 
     bSizer2->Add(bSizer3, 1, wxALIGN_CENTER, 5);
 
@@ -120,6 +121,8 @@ MyFrame::MyFrame()
         m_bitmap1->Bind(wxEVT_LEFT_DOWN, &MyFrame::OnBitmapPress, this);
         m_choice1->Bind(wxEVT_CHOICE, &MyFrame::OnColourMapChange, this);
         m_bitmap1->SetSize(te.ImageWidth(), te.ImageHeight());
+        measure.x = te.ImageWidth() / 2;
+        measure.y = te.ImageHeight() / 2;
         m_bitmap1->SetBitmap(*te.GetWxBitmap(m_choice1->GetString(m_choice1->GetCurrentSelection()).ToStdString()));
         m_bitmap1->Refresh();
         m_bitmap8->SetBitmap(*te.GetColourMapWxBitmap(m_choice1->GetString(m_choice1->GetCurrentSelection()).ToStdString()));
@@ -140,8 +143,11 @@ void MyFrame::OnAbout(wxCommandEvent &event)
 
 void MyFrame::OnTimer(wxTimerEvent &)
 {
+    wxString mystring;
     m_bitmap1->SetBitmap(*te.GetWxBitmap(m_choice1->GetString(m_choice1->GetCurrentSelection()).ToStdString()));
     m_bitmap1->Refresh();
+    mystring = wxString::Format(wxT("%.2f℃"), te.getPointTemp(measure.x, measure.y));
+    SetStatusText(mystring);
     m_staticText1->SetLabel(wxString::Format(wxT("%.2f℃"), te.getMinTemp()));
     m_staticText2->SetLabel(wxString::Format(wxT("%.2f℃"), te.getMaxTemp()));
     m_timer.Start(50);
@@ -154,7 +160,10 @@ void MyFrame::OnButton(wxCommandEvent &)
 
 void MyFrame::OnBitmapPress(wxMouseEvent &event)
 {
-    wxString mystring = wxString::Format(wxT("%.2f℃"), te.getPointTemp(event.GetPosition().x, event.GetPosition().y));
+    wxString mystring;
+    measure.x = event.GetPosition().x;
+    measure.y = event.GetPosition().y;
+    mystring = wxString::Format(wxT("%.2f℃"), te.getPointTemp(measure.x, measure.y));
     SetStatusText(mystring);
 }
 
